@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Every episode | The Risk of You</title>
+<meta name="description" content="Every episode of The Risk of You in order, on TikTok, Instagram Reels, YouTube Shorts and Snapchat.">
+<meta name="theme-color" content="#0C0D08">
+<link rel="canonical" href="https://theriskofyou.co/episodes/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://theriskofyou.co/episodes/">
+<meta property="og:title" content="Every episode | The Risk of You">
+<meta property="og:description" content="Every episode in order, newest first or from the beginning.">
+<meta property="og:image" content="https://theriskofyou.co/assets/og-episodes.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/troy.css">
+<script>window.TROY_BASE = '../';</script>
+<script src="../js/config.js"></script>
+</head>
+<body>
+
+<header class="nav" id="nav"></header>
+
+<main>
+  <section class="sec flush" style="padding-top:26px">
+    <div class="wrap">
+      <a class="backlink" href="../index.html">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+        Back to The Risk of You
+      </a>
+
+      <div class="st">Every episode</div>
+      <div class="sh">All of them, in order.</div>
+      <p class="sp">Tap any episode to watch it on the platform you prefer.</p>
+
+      <div class="tabs" role="tablist" aria-label="Episode order">
+        <button type="button" role="tab" data-order="first" aria-selected="true">From the beginning</button>
+        <button type="button" role="tab" data-order="latest" aria-selected="false">Latest first</button>
+      </div>
+
+      <div class="grid" id="rail"></div>
+      <p class="railnote" id="epCount"></p>
+      <div class="more hidden" id="more"><button class="btn ghost" type="button">Show more</button></div>
+
+      <p class="railnote" style="margin-top:20px">Episodes you have opened on this device are dimmed, so you can see where you stopped.</p>
+    </div>
+  </section>
+
+  <!-- THE SERIES ACCOUNT. Hides itself when the feed is empty. -->
+  <section class="sec fdsec hidden" id="seriesFeed">
+    <div class="wrap">
+      <div class="st">Behind it</div>
+      <div class="sh">Latest from the series.</div>
+      <div class="fdrail" id="feedSeries"></div>
+    </div>
+  </section>
+
+  <!-- WIN'S LATEST POSTS. Hides itself when the feed is empty. -->
+  <section class="sec flush fdsec hidden" id="winFeed">
+    <div class="wrap">
+      <div class="st">From Win</div>
+      <div class="sh">Her latest, straight from Instagram.</div>
+      <div class="fdrail" id="feedWin"></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="wrap">
+      <div class="news">
+        <div class="st">Don't miss one</div>
+        <div class="sh">Get every episode the moment it drops.</div>
+        <p class="sp">One message per drop, nothing else.</p>
+        <form id="news" novalidate>
+          <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+          <label for="nemail" style="position:absolute;left:-9999px">Email</label>
+          <input type="email" id="nemail" name="email" placeholder="Your email" autocomplete="email" inputmode="email">
+          <button class="btn lime" type="submit">Keep me posted</button>
+        </form>
+        <label class="chk" for="ncross">
+          <input type="checkbox" id="ncross" name="cross" form="news">
+          <span>Also tell me about A Love Racket, the live event on 29 December.</span>
+        </label>
+        <p class="fmsg" id="fmsg"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="foot"></footer>
+
+<div class="layer" id="layer" role="dialog" aria-modal="true" aria-labelledby="layerT">
+  <div class="box">
+    <div class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#14160D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></div>
+    <h3 id="layerT">You're on the list</h3>
+    <p>We'll email you the moment a new episode drops. Nothing else.</p>
+    <button class="btn lime" type="button">Back to the episodes</button>
+    <button class="x" type="button">Close</button>
+  </div>
+</div>
+
+<script src="../js/partials.js"></script>
+<script src="../js/episodes.js"></script>
+</body>
+</html>
