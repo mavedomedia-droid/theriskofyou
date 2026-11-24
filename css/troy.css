@@ -1,0 +1,416 @@
+/* The Risk of You.
+   Palette is lifted off the logo: acid lime with the red heart, on the deck's
+   cream. Dark base because the page is mostly episode covers and stills, and
+   covers only sing against black. */
+:root{
+  --bg:#0C0D08; --bg2:#14160D; --card:#1A1D12;
+  --line:rgba(245,241,230,.13); --line2:rgba(245,241,230,.25);
+  --ink:#F5F1E6; --muted:#9A9B8A;
+  --lime:#D9E021; --red:#ED1C24;
+  --wrap:1120px; --nav:58px;
+  --ep-w:156px;
+  /* ---- type ----
+     Two families and one weight live here, so changing the face is four
+     lines rather than a hunt through the file. Poppins is wide and very
+     circular, so it wants tighter tracking than a grotesque would. */
+  --disp:Poppins,system-ui,sans-serif;
+  --body:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --dw:700;
+  --dls:-.04em;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--body);
+  font-size:16px; line-height:1.55; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%; display:block}
+a{color:inherit}
+h1,h2,h3,.dsp{font-family:var(--disp); font-weight:var(--dw); letter-spacing:var(--dls); line-height:1.03; margin:0}
+.wrap{max-width:var(--wrap); margin:0 auto; padding-inline:max(18px,env(safe-area-inset-left,0px))}
+.sec{padding:46px 0; border-top:1px solid var(--line)}
+.sec.flush{border-top:0}
+.st{font-size:11.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--lime)}
+.sh{font-family:var(--disp); font-weight:var(--dw); font-size:clamp(25px,6vw,38px); letter-spacing:var(--dls); line-height:1.06; margin-top:9px}
+.sp{font-size:15.5px; color:var(--muted); margin:10px 0 0; max-width:62ch}
+.lede{font-size:17px; color:var(--ink); opacity:.9}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--body); font-size:15px; font-weight:600; text-decoration:none;
+  padding:12px 20px; border-radius:999px; border:0; cursor:pointer; white-space:nowrap;
+  background:var(--ink); color:var(--bg); transition:transform .12s ease, opacity .12s ease;
+}
+.btn:active{transform:translateY(1px)}
+.btn.lime{background:var(--lime); color:#14160D}
+.btn.ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line2)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.sm{font-size:13.5px; padding:9px 15px}
+.btn svg{width:17px; height:17px; flex:0 0 auto}
+
+/* ---------- nav ---------- */
+.nav{
+  position:sticky; top:0; z-index:60; height:var(--nav);
+  display:flex; align-items:center;
+  background:rgba(12,13,8,.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px);
+}
+.nav .wrap{display:flex; align-items:center; justify-content:space-between; width:100%; gap:14px}
+.nav .brand{display:flex; align-items:center; gap:9px; text-decoration:none}
+.nav .brand img{height:30px; width:auto}
+.nav .lk{display:none; gap:22px; font-size:14px; font-weight:500}
+.nav .lk a{text-decoration:none; color:var(--muted)}
+.nav .lk a:hover{color:var(--ink)}
+@media (min-width:860px){ .nav .lk{display:flex} }
+
+/* ---------- hero ---------- */
+.hero{position:relative; padding:28px 0 10px; overflow:hidden}
+.hero .wrap{position:relative; z-index:2}
+.hero .logo{width:min(96px,22vw); height:auto; margin:0 auto 18px; opacity:.95}
+/* height:auto matters. The <img> carries width/height attributes, and
+   without it the attribute height wins and the logo renders stretched. */
+.hero h1{font-size:clamp(26px,7vw,46px); text-align:center; margin-top:26px}
+.hero h1 em{font-style:normal; color:var(--lime)}
+.hero .desc{text-align:center; color:var(--muted); font-size:16px; margin:12px auto 0; max-width:46ch}
+/* Credibility as one line of text rather than a row of pills. Set as a
+   paragraph, not flex, so it wraps like prose and never leaves a separator
+   stranded at the start of a line. */
+.tags{text-align:center; font-size:13.5px; font-weight:500; color:var(--muted);
+  margin:14px auto 0; max-width:44ch; line-height:1.75}
+.tags b{color:var(--ink); font-weight:600}
+.tags i{font-style:normal; color:var(--line2); margin:0 7px}
+
+/* the poster. This is the hero, which is why the logo above it is small. */
+.poster{width:min(420px,78vw); margin:0 auto; position:relative}
+.poster .fr{aspect-ratio:4/5; border-radius:20px; overflow:hidden; position:relative;
+  background:var(--bg2); border:1px solid var(--line); box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.poster .fr img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.poster .fr::after{content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,transparent 56%,rgba(12,13,8,.78))}
+.poster .cap{position:absolute; left:0; right:0; bottom:0; z-index:2; padding:18px 18px 20px; text-align:center}
+.poster .cap h1{font-size:clamp(23px,5.6vw,34px); text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.poster .cap h1 em{font-style:normal; color:var(--lime)}
+.poster .cap p{font-size:13.5px; color:#D8D6C6; margin:9px 0 0; text-shadow:0 1px 12px rgba(0,0,0,.7)}
+
+/* the live episode, sitting in the hero rather than behind a scroll */
+.live{margin:26px auto 0; max-width:640px}
+.live .lbl{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px}
+.live .lbl i{width:7px; height:7px; border-radius:50%; background:var(--red); animation:pl 1.9s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.28}}
+.live .lbl span{font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.lvcard{display:grid; grid-template-columns:minmax(0,120px) 1fr; gap:16px; align-items:center;
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px}
+.lvcard .cv{aspect-ratio:4/5; border-radius:12px; overflow:hidden; position:relative; background:var(--bg2)}
+.lvcard .cv img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.lvcard .ep{font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--lime)}
+.lvcard h2{font-size:clamp(19px,4.6vw,25px); margin-top:5px}
+.lvcard p{font-size:14px; color:var(--muted); margin:7px 0 0}
+.watch{display:flex; flex-wrap:wrap; gap:7px; margin-top:13px}
+.watch a{
+  display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+  font-size:13px; font-weight:600; padding:8px 13px; border-radius:999px;
+  border:1px solid var(--line2); color:var(--ink);
+}
+.watch a:hover{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.watch a svg{width:15px; height:15px}
+.hero .start{text-align:center; margin-top:16px}
+.hero .start a{font-size:14.5px; font-weight:600; color:var(--lime); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:2px}
+
+/* ---------- the counter ---------- */
+.ctr{margin-top:24px; border:1px solid var(--line); border-radius:16px; padding:16px 18px; background:var(--bg2)}
+.ctr .top{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.ctr b{font-family:var(--disp); font-size:clamp(26px,6.4vw,36px); font-weight:var(--dw); letter-spacing:-.03em; color:var(--lime)}
+.ctr .of{font-size:13px; color:var(--muted)}
+.ctr .bar{height:5px; border-radius:999px; background:rgba(245,241,230,.12); margin-top:11px; overflow:hidden}
+.ctr .bar i{display:block; height:100%; border-radius:999px; background:var(--lime); width:0; transition:width .9s ease}
+.ctr .note{font-size:12px; color:var(--muted); margin-top:9px}
+
+/* ---------- episode rail ---------- */
+.tabs{display:inline-flex; gap:3px; background:var(--bg2); border:1px solid var(--line); border-radius:999px; padding:3px; margin-top:16px}
+.tabs button{
+  font-family:var(--body); font-size:13.5px; font-weight:600; color:var(--muted);
+  background:transparent; border:0; border-radius:999px; padding:8px 15px; cursor:pointer;
+}
+.tabs button[aria-selected="true"]{background:var(--ink); color:var(--bg)}
+.rail{display:flex; gap:11px; overflow-x:auto; scroll-snap-type:x mandatory; margin-top:18px;
+  padding-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.rail .epc{flex:0 0 var(--ep-w); scroll-snap-align:start}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:13px; margin-top:18px}
+/* The card is an <article> now, because the platform icons inside it are
+   links of their own and an anchor cannot contain an anchor. .hit is the
+   cover-and-title tap target that used to be the card itself. */
+.epc{display:block}
+.epc .hit{text-decoration:none; display:block; color:inherit}
+.epc .cv{aspect-ratio:4/5; border-radius:13px; overflow:hidden; position:relative; background:var(--bg2); border:1px solid var(--line)}
+.epc .cv img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s ease}
+.epc:hover .cv img{transform:scale(1.04)}
+.epc .n{position:absolute; left:8px; top:8px; z-index:2; font-size:11px; font-weight:700; letter-spacing:.08em;
+  background:rgba(12,13,8,.78); color:var(--ink); padding:4px 8px; border-radius:7px; backdrop-filter:blur(6px)}
+.epc .dur{position:absolute; right:8px; bottom:8px; z-index:2; font-size:11px; font-weight:600;
+  background:rgba(12,13,8,.78); color:var(--ink); padding:3px 7px; border-radius:6px}
+.epc .ti{font-size:13.5px; font-weight:600; margin-top:9px; line-height:1.3}
+.epc .mt{font-size:11.5px; color:var(--muted); margin-top:3px}
+.epc.soon .cv{display:grid; place-items:center; border-style:dashed}
+.epc.soon .cv span{font-size:12px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase}
+/* an episode whose link is in but whose details have not been pulled yet.
+   It is tappable and goes to the post. Only the artwork is missing. */
+.epc.wait .cv, .lvcard .cv{background:
+  linear-gradient(135deg,rgba(217,224,33,.10),rgba(237,28,36,.08))}
+.cv .ld{position:absolute; inset:0; display:grid; place-items:center; z-index:1;
+  font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--lime)}
+.epc.seen .cv::after{content:""; position:absolute; inset:0; background:rgba(12,13,8,.52)}
+.epc.seen .ti{color:var(--muted)}
+.more{display:flex; justify-content:center; margin-top:22px}
+.railnote{font-size:12.5px; color:var(--muted); margin-top:12px}
+
+/* ---------- recap ---------- */
+.recap{margin-top:22px; border:1px solid var(--line); border-radius:18px; background:var(--bg2); overflow:hidden}
+.recap > summary{
+  list-style:none; cursor:pointer; padding:16px 18px; display:flex; align-items:center;
+  justify-content:space-between; gap:14px; font-weight:700; font-size:16px;
+}
+.recap > summary::-webkit-details-marker{display:none}
+.recap > summary::after{content:"+"; color:var(--lime); font-size:21px; line-height:1}
+.recap[open] > summary::after{content:"\2212"}
+.recap ol{margin:0; padding:0 18px 18px 36px}
+.recap li{font-size:14.5px; color:var(--muted); margin-bottom:9px; line-height:1.5}
+.recap li b{color:var(--ink); font-weight:600}
+.recap li::marker{color:var(--lime); font-weight:700}
+
+/* ---------- story ---------- */
+.stills{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:20px}
+.stl .im{aspect-ratio:4/5; border-radius:14px; overflow:hidden; position:relative; background:var(--bg2); border:1px solid var(--line)}
+.stl .im img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.stl p{font-size:13.5px; color:var(--muted); margin:10px 0 0; line-height:1.45}
+.nums{display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:26px; border:1px solid var(--line); border-radius:16px; overflow:hidden}
+.nums div{padding:16px 10px; text-align:center; border-right:1px solid var(--line)}
+.nums div:last-child{border-right:0}
+.nums b{display:block; font-family:var(--disp); font-size:clamp(20px,5vw,30px); font-weight:var(--dw); letter-spacing:-.02em; color:var(--lime)}
+.nums span{display:block; font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:6px}
+@media (max-width:560px){ .nums{grid-template-columns:repeat(2,1fr)} .nums div:nth-child(2){border-right:0} .nums div:nth-child(-n+2){border-bottom:1px solid var(--line)} }
+
+/* ---------- cast ---------- */
+.lead{display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center; margin-top:20px;
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px}
+.lead .ph{aspect-ratio:3/4; border-radius:13px; overflow:hidden; position:relative; background:var(--bg2)}
+.lead .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 16%}
+.lead .nm{font-family:var(--disp); font-size:23px; font-weight:var(--dw); letter-spacing:-.02em}
+.lead .rl{font-size:11.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--lime); margin-top:4px}
+.lead p{font-size:14px; color:var(--muted); margin:9px 0 0}
+.cast{display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:12px; margin-top:13px}
+.mem .ph{aspect-ratio:4/5; border-radius:14px; overflow:hidden; position:relative; background:var(--bg2); border:1px solid var(--line)}
+.mem .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.mem .nm{font-size:15px; font-weight:700; margin-top:8px}
+.mem .rl{font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--lime); margin-top:2px}
+
+/* ---------- love racket band ---------- */
+.lr{position:relative; border-top:1px solid var(--line); overflow:hidden}
+.lr .bgim{position:absolute; inset:0}
+.lr .bgim img{width:100%; height:100%; object-fit:cover; object-position:50% 42%}
+.lr .bgim::after{content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(12,13,8,.88),rgba(12,13,8,.72) 45%,rgba(12,13,8,.94))}
+.lr .wrap{position:relative; z-index:2; padding-block:52px; text-align:center}
+.lr img.mark{width:min(200px,48vw); margin:0 auto 16px}
+.lr .sh{margin-top:0}
+.lr .btn{margin-top:20px}
+
+/* ---------- newsletter ---------- */
+.news{background:var(--card); border:1px solid var(--line); border-radius:22px; padding:24px 20px}
+.news form{display:flex; gap:9px; margin-top:16px; flex-wrap:wrap}
+.news input[type=email]{
+  flex:1 1 220px; min-width:0; font-family:var(--body);
+  font-size:16px;              /* 16px so Safari on iPhone never zooms on focus */
+  padding:13px 15px; border-radius:12px; border:1px solid var(--line2);
+  background:var(--bg); color:var(--ink);
+}
+.news input[type=email]::placeholder{color:#6E6F62}
+.news input[type=email]:focus{outline:2px solid var(--lime); outline-offset:1px; border-color:transparent}
+.chk{display:flex; gap:9px; align-items:flex-start; margin-top:13px; font-size:13.5px; color:var(--muted); cursor:pointer}
+.chk input{margin-top:3px; width:17px; height:17px; accent-color:var(--lime); flex:0 0 auto}
+.fmsg{font-size:13.5px; margin-top:11px; min-height:19px}
+.fmsg.err{color:#FF8A8A}
+.fmsg.ok{color:var(--lime)}
+
+/* ---------- partners ---------- */
+.aud{display:grid; grid-template-columns:1fr; gap:12px; margin-top:20px}
+@media (min-width:720px){ .aud{grid-template-columns:1fr 1fr} }
+.aud div{border:1px solid var(--line); border-radius:18px; padding:18px; background:var(--bg2)}
+.aud .k{font-family:var(--disp); font-size:26px; font-weight:var(--dw); color:var(--lime); letter-spacing:-.02em}
+.aud .w{font-size:11.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-top:3px}
+.aud ul{margin:12px 0 0; padding-left:18px}
+.aud li{font-size:14px; color:var(--muted); margin-bottom:5px}
+.aud li::marker{color:var(--lime)}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line); padding:32px 0 calc(32px + env(safe-area-inset-bottom,0px)); margin-top:10px}
+footer .row{display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:center}
+footer img.fl{height:46px; width:auto}
+footer .ln{display:flex; flex-wrap:wrap; gap:16px; font-size:13.5px}
+footer .ln a{color:var(--muted); text-decoration:none}
+footer .ln a:hover{color:var(--ink)}
+footer .cp{font-size:12.5px; color:#6E6F62; margin-top:18px}
+.soc{display:flex; gap:9px}
+.soc a{width:35px; height:35px; border-radius:50%; border:1px solid var(--line2); display:grid; place-items:center; color:var(--muted)}
+.soc a:hover{color:var(--ink); border-color:var(--ink)}
+.soc svg{width:16px; height:16px}
+
+/* ---------- modal ---------- */
+.layer{position:fixed; inset:0; z-index:90; display:none; place-items:center; padding:20px;
+  background:rgba(6,7,4,.74); backdrop-filter:blur(5px)}
+.layer.on{display:grid}
+.layer .box{background:var(--card); border:1px solid var(--line); border-radius:22px; padding:28px 24px;
+  max-width:400px; width:100%; text-align:center; position:relative}
+.layer .ic{width:52px; height:52px; border-radius:50%; background:var(--lime); display:grid; place-items:center; margin:0 auto 14px}
+.layer h3{font-size:23px}
+.layer p{font-size:14.5px; color:var(--muted); margin:9px 0 18px}
+.layer .x{position:absolute; top:11px; right:13px; background:none; border:0; color:var(--muted); font-size:13px; cursor:pointer}
+
+/* ---------- the slot pattern, same as Love Racket ----------
+   Any element with data-slot draws a labelled dashed box naming the file it
+   wants, and fills itself the moment that file exists. */
+[data-slot]{position:relative}
+[data-slot].empty{border:1px dashed var(--line2) !important; background:var(--bg2) !important}
+[data-slot].empty > img{display:none}
+[data-slot].empty::after{
+  content:attr(data-slot); position:absolute; inset:0; display:grid; place-items:center;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:#6E6F62;
+  text-align:center; padding:8px; word-break:break-all; line-height:1.4;
+}
+
+/* ---------- misc ---------- */
+.backlink{display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:600; color:var(--muted); text-decoration:none; margin-bottom:16px}
+.backlink:hover{color:var(--ink)}
+.prose p{font-size:15px; color:var(--muted); margin:0 0 14px; max-width:68ch}
+.prose h2{font-size:19px; margin:26px 0 9px}
+.prose a{color:var(--lime)}
+.center{text-align:center}
+.hidden{display:none !important}
+@media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important} }
+
+/* ── the trailer week ──────────────────────────────────────────────
+   What the hero shows between the trailer dropping and the first
+   episode. Fed from the Settings tab, so it appears and disappears
+   without anyone touching this file. */
+.trailer{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px}
+.tfr{position:relative; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000}
+.tfr iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+/* the fallback for a trailer that is not a YouTube link */
+.tfr.link{display:grid; place-items:center; text-decoration:none; color:var(--ink);
+  background:linear-gradient(135deg,rgba(217,224,33,.16),rgba(237,28,36,.12))}
+.tfr.link .pl{width:58px; height:58px; border-radius:50%; background:var(--lime); display:block; position:relative}
+.tfr.link .pl::after{content:""; position:absolute; left:52%; top:50%; transform:translate(-50%,-50%);
+  border-left:17px solid #14160D; border-top:11px solid transparent; border-bottom:11px solid transparent}
+.tfr.link .lb{position:absolute; bottom:14px; left:0; right:0; text-align:center;
+  font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink)}
+.tfr.link:hover .pl{transform:scale(1.06)}
+.trailer .tm{padding:13px 4px 3px; text-align:center}
+.trailer .an{font-size:14.5px; color:var(--ink); margin:0}
+.trailer .cd{font-size:12px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--lime); margin:7px 0 0}
+
+/* ======================================================================
+   WATCH-ON ICONS, THE TWO LEADS, SUPPORTING CAST AND THE POST RAILS
+   Added for the per-platform episode links and the Instagram galleries.
+   ====================================================================== */
+
+/* ---------- the per-episode platform icons ---------- */
+/* One icon per platform that has a link in the sheet. An empty cell draws
+   nothing, so the row is never a dead end. */
+.plats{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap}
+.plats a{
+  width:30px; height:30px; display:grid; place-items:center; border-radius:9px;
+  border:1px solid var(--line); background:var(--bg2); color:var(--muted);
+  transition:color .15s ease, background .15s ease, border-color .15s ease;
+}
+.plats a svg{width:15px; height:15px}
+.plats a:hover{color:#14160D; background:var(--lime); border-color:var(--lime)}
+.epc.seen .plats a{opacity:.72}
+
+/* ---------- meet Win, meet Kunle ---------- */
+.meet{display:grid; gap:18px; align-items:center}
+/* width:100% matters. The only child is an absolutely positioned <img>, so
+   the box has no intrinsic width; left to shrink-to-fit it collapses to
+   nothing and the portrait disappears. */
+.meet .ph{
+  aspect-ratio:4/5; border-radius:16px; overflow:hidden; position:relative;
+  background:var(--bg2); border:1px solid var(--line);
+  width:100%; max-width:420px;
+}
+.meet .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.meet .kick{
+  font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--lime); margin-bottom:7px;
+}
+.meet h3{font-family:var(--disp); font-size:27px; font-weight:var(--dw); margin:0 0 4px; line-height:1.1}
+/* The actor credit under the character name. Readable, not a footnote: the
+   names are the draw, even though the section introduces the characters. */
+.meet h3 .as{
+  font-family:var(--body); font-size:15px; font-weight:600;
+  color:var(--ink); opacity:.8; display:block; margin-top:6px;
+}
+.meet .rl{font-size:13.5px; color:var(--lime); font-weight:600; margin-bottom:12px}
+.meet .tx p{font-size:14.5px; color:var(--muted); line-height:1.62; margin:0 0 12px; max-width:54ch}
+.meet .tx .btn{margin-top:4px}
+@media (min-width:760px){
+  .meet{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:36px}
+  .meet h3{font-size:32px}
+  /* Kunle's portrait sits on the other side, so the page alternates instead
+     of reading as two identical rows. */
+  /* The columns flip with the content, so the text keeps the wider side and
+     both sections read at the same measure. */
+  .meet.rev{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+  .meet.rev .ph{order:2; justify-self:end}
+  .meet.rev .tx{order:1}
+}
+
+/* ---------- supporting cast ---------- */
+/* auto-fit, not a fixed count: there are five characters today and deleting
+   or adding one should not leave an orphan in the last row. */
+.supp{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px}
+@media (min-width:620px){ .supp{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))} }
+.supp .mem .ph{
+  aspect-ratio:1/1; border-radius:14px; overflow:hidden; position:relative;
+  background:var(--bg2); border:1px solid var(--line);
+}
+.supp .mem .ph img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.supp .mem .nm{font-size:13.5px; font-weight:700; margin-top:9px}
+.supp .mem .nm .as{display:block; font-size:11.5px; font-weight:500; opacity:.8; margin-top:2px}
+.supp .mem .rl{font-size:11.5px; color:var(--muted); margin-top:2px}
+
+/* ---------- latest posts rails ---------- */
+/* Horizontal and swipeable on a phone, which is where nearly all of this
+   traffic is. The scrollbar is hidden but the rail still scrolls. */
+.fdrail{
+  display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch; padding:2px 0 10px; margin-top:16px;
+  scrollbar-width:none;
+}
+.fdrail::-webkit-scrollbar{display:none}
+.fd{
+  flex:0 0 164px; scroll-snap-align:start; text-decoration:none; color:inherit;
+}
+.fd .im{
+  aspect-ratio:4/5; border-radius:13px; overflow:hidden; position:relative;
+  background:var(--bg2); border:1px solid var(--line);
+}
+.fd .im img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s ease}
+.fd:hover .im img{transform:scale(1.04)}
+.fd p{
+  font-size:12.5px; color:var(--muted); line-height:1.45; margin:8px 0 0;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.fd .dt{display:block; font-size:11px; color:#6E6F62; margin-top:4px}
+@media (min-width:760px){ .fd{flex:0 0 186px} }
+
+/* ---------- the button row on the Love Racket strip ---------- */
+.acts{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:4px}
+/* The game button carries a second line, so it stacks rather than sitting on
+   one row like the others. */
+.btn.lr-play{flex-direction:column; gap:1px; padding:9px 20px; line-height:1.25}
+.btn.lr-play b{font-size:15px; font-weight:600}
+.btn.lr-play i{font-size:11.5px; font-style:normal; font-weight:500; color:var(--muted)}
