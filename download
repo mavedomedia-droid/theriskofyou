@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+*.log
+
+# Local tooling and preview output. netlify.toml publishes the repo root, so
+# anything committed here is served live on theriskofyou.co. These three are
+# for working on the site, not part of it.
+build/
+build.js
+lab.html
