@@ -9,7 +9,7 @@ window.TROY_CONFIG = {
      Paste the Apps Script web app URL here. Until you do, the episode rail
      falls back to EPISODES_FALLBACK below and the newsletter form says so
      rather than pretending to work. */
-  API_URL: '',
+  API_URL: 'https://script.google.com/macros/s/AKfycbwflaBgRKgu8LkOzxWSTTLj3JzNgkqtExzQdGHOxgbQMItYqpIMSke5831hYzTuHJHF/exec',
 
   /* ---- where to watch. Empty hides that button everywhere on the site ----
      These are the channel pages. Per episode links come from the Sheet. */
