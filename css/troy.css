@@ -68,12 +68,12 @@ h1,h2,h3,.dsp{font-family:var(--disp); font-weight:var(--dw); letter-spacing:var
 @media (min-width:860px){ .nav .lk{display:flex} }
 
 /* ---------- hero ---------- */
-.hero{position:relative; padding:28px 0 10px; overflow:hidden}
+/* The hero has one job: the poster and the latest episode both visible
+   without scrolling, and the next section peeking below to say keep going.
+   Every measurement here was set against real viewports, not guessed. */
+.hero{position:relative; padding:14px 0 10px; overflow:hidden}
 .hero .wrap{position:relative; z-index:2}
-.hero .logo{width:min(96px,22vw); height:auto; margin:0 auto 18px; opacity:.95}
-/* height:auto matters. The <img> carries width/height attributes, and
-   without it the attribute height wins and the logo renders stretched. */
-.hero h1{font-size:clamp(26px,7vw,46px); text-align:center; margin-top:26px}
+.hero h1{font-size:clamp(26px,6.4vw,42px); text-align:center; margin-top:16px}
 .hero h1 em{font-style:normal; color:var(--lime)}
 .hero .desc{text-align:center; color:var(--muted); font-size:16px; margin:12px auto 0; max-width:46ch}
 /* Credibility as one line of text rather than a row of pills. Set as a
@@ -85,7 +85,7 @@ h1,h2,h3,.dsp{font-family:var(--disp); font-weight:var(--dw); letter-spacing:var
 .tags i{font-style:normal; color:var(--line2); margin:0 7px}
 
 /* the poster. This is the hero, which is why the logo above it is small. */
-.poster{width:min(420px,78vw); margin:0 auto; position:relative}
+.poster{width:min(300px,56vw); margin:0 auto; position:relative}
 .poster .fr{aspect-ratio:4/5; border-radius:20px; overflow:hidden; position:relative;
   background:var(--bg2); border:1px solid var(--line); box-shadow:0 24px 60px rgba(0,0,0,.55)}
 .poster .fr img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
@@ -97,7 +97,7 @@ h1,h2,h3,.dsp{font-family:var(--disp); font-weight:var(--dw); letter-spacing:var
 .poster .cap p{font-size:13.5px; color:#D8D6C6; margin:9px 0 0; text-shadow:0 1px 12px rgba(0,0,0,.7)}
 
 /* the live episode, sitting in the hero rather than behind a scroll */
-.live{margin:26px auto 0; max-width:640px}
+.live{margin:18px auto 0; max-width:640px}
 .live .lbl{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px}
 .live .lbl i{width:7px; height:7px; border-radius:50%; background:var(--red); animation:pl 1.9s infinite}
 @keyframes pl{0%,100%{opacity:1}50%{opacity:.28}}
@@ -274,9 +274,12 @@ footer .cp{font-size:12.5px; color:#6E6F62; margin-top:18px}
    Any element with data-slot draws a labelled dashed box naming the file it
    wants, and fills itself the moment that file exists. */
 [data-slot]{position:relative}
-[data-slot].empty{border:1px dashed var(--line2) !important; background:var(--bg2) !important}
+/* An empty image slot. Visitors get a quiet tile; the dashed outline and the
+   file path only appear in builder mode (see the .dev class in partials.js). */
+[data-slot].empty{background:var(--bg2) !important}
 [data-slot].empty > img{display:none}
-[data-slot].empty::after{
+.dev [data-slot].empty{border:1px dashed var(--line2) !important}
+.dev [data-slot].empty::after{
   content:attr(data-slot); position:absolute; inset:0; display:grid; place-items:center;
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:#6E6F62;
   text-align:center; padding:8px; word-break:break-all; line-height:1.4;
@@ -409,8 +412,335 @@ footer .cp{font-size:12.5px; color:#6E6F62; margin-top:18px}
 
 /* ---------- the button row on the Love Racket strip ---------- */
 .acts{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:4px}
-/* The game button carries a second line, so it stacks rather than sitting on
-   one row like the others. */
-.btn.lr-play{flex-direction:column; gap:1px; padding:9px 20px; line-height:1.25}
-.btn.lr-play b{font-size:15px; font-weight:600}
-.btn.lr-play i{font-size:11.5px; font-style:normal; font-weight:500; color:var(--muted)}
+/* The prize line sits under the buttons now, not inside one. */
+.prize{text-align:center; font-size:13px; color:var(--muted); margin:12px 0 0}
+
+
+/* ---------- wide hero: poster beside the words ----------
+   Stacked, a 4:5 poster plus a headline plus the episode card runs past
+   800px of viewport on a laptop, so the episode ends up below the fold. Side
+   by side the row is only as tall as the poster and everything clears. */
+@media (min-width:860px){
+  /* Fill the screen and stop 90px short, so exactly one strip of the next
+     section shows. Without the min-height the row is only as tall as the
+     poster and a third of the next section sits in view, which reads as a
+     layout accident rather than an invitation to scroll. */
+  .hero{min-height:calc(100svh - 150px); display:flex; align-items:center}
+  .hero .wrap{
+    width:100%;
+    display:grid; grid-template-columns:minmax(0,360px) minmax(0,1fr);
+    gap:52px; align-items:center;
+  }
+  .hero .poster{width:100%; max-width:360px; margin:0}
+  .hero h1{text-align:left; margin-top:0}
+  .hero .desc{text-align:left; margin-left:0; margin-right:0}
+  .hero .live{margin:22px 0 0; max-width:none}
+  .hero .live .lbl{justify-content:flex-start}
+  .hero .start{text-align:left}
+}
+
+/* ---------- Follow the series, in the story section ----------
+   Reuses .watch for the buttons so the two rows stay identical, and only
+   adds the label and the spacing around it. */
+.follow{margin-top:26px; padding-top:22px; border-top:1px solid var(--line)}
+.follow .fl{
+  font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); margin:0;
+}
+.follow .watch{margin-top:12px}
+
+
+/* ---------- story section ---------- */
+.cta{margin:20px 0 0}
+/* Her latest posts, where three production stills used to be. */
+.storypost{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:24px}
+.storypost .fd{flex:none}
+@media (max-width:560px){
+  .storypost{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .storypost .fd:nth-child(3){display:none}
+}
+
+/* ---------- press pull quote ---------- */
+.press{margin:22px 0 0; padding:0 0 0 18px; border-left:2px solid var(--lime)}
+.press blockquote{
+  margin:0; font-family:var(--disp); font-weight:var(--dw); letter-spacing:var(--dls);
+  font-size:clamp(19px,3.4vw,25px); line-height:1.22; color:var(--ink);
+}
+.press figcaption{
+  margin-top:9px; font-size:12.5px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.press figcaption a{color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line2)}
+.press figcaption a:hover{color:var(--ink)}
+.press .rt{
+  letter-spacing:0; text-transform:none; color:var(--bg); background:var(--lime);
+  font-weight:700; padding:2px 8px; border-radius:6px;
+}
+
+/* ---------- film page furniture in the story section ---------- */
+/* The genre and format line that sits above a synopsis on a film page. */
+.meta{
+  font-size:12.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); margin:12px 0 0;
+}
+.meta i{font-style:normal; color:var(--line2); margin:0 8px}
+/* The billing block. Set apart from the synopsis, the way a poster credit is. */
+.billing{
+  font-size:15px; color:var(--muted); margin:16px 0 0;
+  padding-top:14px; border-top:1px solid var(--line);
+}
+.billing b{color:var(--ink); font-weight:600}
+
+/* ---------- the slide up signup bar ----------
+   Sits at the bottom so it never covers what someone is reading, and
+   animates in rather than appearing, which is the difference between a
+   prompt and a jump scare. */
+.sr{position:absolute;left:-9999px}
+.pop{
+  position:fixed; left:12px; right:12px; bottom:12px; z-index:60;
+  background:var(--bg2); border:1px solid var(--line2); border-radius:14px;
+  padding:16px 42px 16px 18px;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);
+  display:grid; gap:12px;
+  transform:translateY(calc(100% + 24px)); opacity:0;
+  transition:transform .42s cubic-bezier(.22,.9,.3,1), opacity .3s ease;
+  pointer-events:none;
+}
+.pop.on{transform:translateY(0); opacity:1; pointer-events:auto}
+.pop .tx b{display:block; font-family:var(--disp); font-weight:var(--dw);
+  letter-spacing:var(--dls); font-size:19px; margin-bottom:3px}
+.pop .tx span{font-size:13.5px; color:var(--muted); line-height:1.45}
+.pop form{display:flex; gap:8px; flex-wrap:wrap}
+/* 16px minimum: anything smaller and Safari on iPhone zooms the page in. */
+.pop input[type=email]{
+  flex:1 1 180px; min-width:0; font-size:16px; padding:12px 14px;
+  border-radius:10px; border:1px solid var(--line2);
+  background:var(--bg); color:var(--ink);
+}
+.pop input[type=email]::placeholder{color:#6E6F62}
+.pop .btn{flex:0 0 auto; font-size:14px; padding:12px 18px}
+.pop .x{
+  position:absolute; top:10px; right:10px; width:28px; height:28px;
+  border:0; background:transparent; color:var(--muted);
+  font-size:22px; line-height:1; cursor:pointer; border-radius:8px;
+}
+.pop .x:hover{color:var(--ink); background:rgba(245,241,230,.08)}
+.pop .fmsg{margin:0; font-size:12.5px}
+@media (min-width:720px){
+  .pop{left:auto; right:20px; bottom:20px; width:420px}
+}
+@media (prefers-reduced-motion:reduce){
+  .pop{transition:opacity .2s ease; transform:none}
+}
+
+/* ======================================================================
+   COMPACT HERO ON A PHONE
+   Measured against 393x660, which is what an iPhone actually leaves once
+   the URL bar and the toolbar are on screen. At the old spacing the live
+   episode card finished 148px below the fold, and the whole stack read
+   loose because every gap was sized for a desktop column.
+   ====================================================================== */
+@media (max-width:560px){
+  .hero{padding:10px 0 8px}
+  .poster{width:min(215px,46vw)}
+  .hero h1{margin-top:10px; font-size:clamp(24px,6.2vw,30px)}
+  .hero .desc{font-size:14.5px; line-height:1.42; margin-top:8px}
+
+  .live{margin-top:12px}
+  .live .lbl{margin-bottom:8px}
+  .live .lbl span{font-size:10.5px}
+
+  .lvcard{grid-template-columns:minmax(0,92px) 1fr; gap:12px; padding:12px; border-radius:14px}
+  .lvcard h2{font-size:18px; margin-top:3px}
+  .lvcard .ep{font-size:10.5px}
+  /* The blurb is the one thing here that is nice to have rather than
+     needed. The title says what the episode is and the buttons say what
+     to do; three lines of summary is what pushed the buttons off screen. */
+  .lvcard p{display:none}
+
+  .watch{gap:6px; margin-top:10px}
+  .watch a{font-size:12.5px; padding:7px 11px; gap:5px}
+  .watch a svg{width:14px; height:14px}
+  .watch a .lg{display:none}   /* drops "episode 05" so both buttons share a row */
+
+  .hero .start{margin-top:10px}
+  .hero .start a{font-size:13.5px}
+}
+
+
+/* ======================================================================
+   POLISH PASS
+   ====================================================================== */
+/* No orphaned last word under a headline or a one line description. */
+h1, .sh, .hero .desc, .lvcard h2, .meet h3{text-wrap:balance}
+
+/* The heading was sitting directly on top of the portrait. */
+.meet{margin-top:18px}
+/* The actor credit inherited the display face's tight tracking. */
+.meet h3 .as{letter-spacing:0}
+
+/* Supporting cast with no portraits yet: names and roles, no empty boxes. */
+.supp{margin-top:16px}
+.supp.noimg{display:block}
+.supp.noimg .ph{display:none}
+.supp.noimg .mem{
+  display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+  padding:11px 0; border-top:1px solid var(--line);
+}
+.supp.noimg .mem:last-child{border-bottom:1px solid var(--line)}
+.supp.noimg .nm{margin:0; font-size:15px}
+.supp.noimg .rl{margin:0; text-align:right}
+
+@media (max-width:560px){
+  /* Sections were spaced for a desktop page. */
+  .sec{padding:32px 0}
+  .lede{font-size:15.5px}
+  .sp{font-size:14.5px}
+  .meta{font-size:10.5px; letter-spacing:.07em}
+  .meta i{margin:0 5px}
+
+  /* Portraits ran the full width of the phone, about 480px tall each. */
+  .meet{gap:14px}
+  .meet .ph{max-width:200px}
+
+  /* One labelled button and the other platforms as icons, on one line. */
+  .watch a .lb{display:none}
+  .watch a:not(:first-child){padding:7px 10px}
+}
+
+/* cast list without portraits: keep name and role close on wide screens */
+@media (min-width:860px){ .supp.noimg{max-width:620px} }
+
+/* BEFORE EPISODE ONE: the "Trailer coming soon" card stands in, and the
+   controls that only make sense with episodes step aside. */
+.noeps .tabs, .noeps .seeall, .noeps .hero .start, .noeps #episodes .sh,
+.noeps #episodes .sp, .noeps .railnote, .noeps .live .lbl i{display:none}
+.noeps #rail{display:block}
+/* the photo is the card: it fills it, with the words over a fade at the foot */
+.trlc{position:relative; overflow:hidden; border-radius:16px; border:1px solid var(--line);
+  aspect-ratio:5/2; background:var(--bg2)}
+.trlc img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 38%}
+.trlc::after{content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(10,11,6,0) 30%,rgba(10,11,6,.88) 100%)}
+.trlc .tx{position:absolute; left:16px; right:16px; bottom:13px; z-index:1; text-align:left}
+.trlc .ep{font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--lime)}
+.trlc h2{font-family:var(--disp); font-weight:var(--dw); letter-spacing:var(--dls); font-size:clamp(19px,4.6vw,26px); margin:3px 0 0; color:#fff}
+.trlc.big{aspect-ratio:16/9; max-width:760px}
+@media (max-width:560px){ .trlc{aspect-ratio:5/2.1; border-radius:14px} }
+
+/* HERO CAROUSEL: a row of posters, the one in the middle in focus */
+.hero.hc{display:block; min-height:0; padding:12px 0 16px; overflow:hidden; position:relative}
+.hc{--sw:max(190px, min(74vw, calc((100svh - 304px) * .75), 330px))}
+.htrack{display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none;
+  padding:0 calc(50% - var(--sw) / 2); -webkit-overflow-scrolling:touch}
+.htrack::-webkit-scrollbar{display:none}
+.hs{flex:0 0 var(--sw); aspect-ratio:3/4; position:relative; overflow:hidden; border-radius:18px;
+  background:var(--bg2); scroll-snap-align:center; text-decoration:none; color:#fff; display:block;
+  opacity:.34; transform:scale(.96); transition:opacity .3s ease, transform .3s ease; cursor:pointer}
+.hs.on{opacity:1; transform:none; box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.hs img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.hs::after{content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(10,11,6,0) 45%,rgba(10,11,6,.92) 100%)}
+.hs .c{position:absolute; left:16px; right:16px; bottom:15px; z-index:1; text-align:left}
+.hs .kick{font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--lime)}
+.hs h1, .hs h2{font-family:var(--disp); font-weight:var(--dw); letter-spacing:var(--dls); line-height:1.05;
+  font-size:clamp(21px,5.6vw,27px); margin:3px 0 0; text-align:left; color:#fff; text-wrap:balance}
+.hs h1 em{font-style:normal; color:var(--lime)}
+.hdots{display:flex; gap:6px; justify-content:center; margin-top:11px}
+.hdots button{width:6px; height:6px; padding:0; border:0; border-radius:3px; background:rgba(255,255,255,.25);
+  cursor:pointer; transition:width .25s ease, background .25s ease}
+.hdots button.on{width:18px; background:var(--lime)}
+.hunder{padding:10px 18px 0; text-align:center}
+.hero.hc .desc{margin:0 auto; font-size:15px; max-width:34ch}
+.proof{display:inline-flex; align-items:center; gap:7px; margin-top:9px; padding:5px 11px; border-radius:999px;
+  border:1px solid var(--line); font-size:12px; color:var(--muted); text-decoration:none; max-width:100%}
+.proof span{color:var(--text,#f3f1e6); font-style:italic}
+.proof em{font-style:normal; font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase}
+.proof b{color:var(--lime); font-weight:700}
+.hrow{display:flex; gap:10px; justify-content:center; margin-top:12px}
+.hrow .play{display:inline-flex; align-items:center; gap:9px}
+.hrow .play i{width:0; height:0; border-left:10px solid currentColor; border-top:6px solid transparent; border-bottom:6px solid transparent}
+.noeps .hrow .all{display:none}
+.harr{display:none}
+@media (min-width:860px){
+  .hero.hc{padding:26px 0 30px}
+  .hc{--sw:max(240px, min(calc((100svh - 330px) * .75), 400px))}
+  .htrack{gap:22px}
+  .hs .c{left:20px; right:20px; bottom:20px}
+  .hs h1, .hs h2{font-size:30px}
+  .hero.hc .desc{font-size:17px; max-width:none}
+  .harr{display:grid; place-items:center; position:absolute; top:calc(26px + var(--sw) * 2 / 3); width:44px; height:44px;
+    border-radius:50%; border:1px solid var(--line); background:rgba(20,22,13,.8); cursor:pointer; z-index:3}
+  .harr.prev{left:calc(50% - var(--sw) / 2 - 70px)} .harr.next{right:calc(50% - var(--sw) / 2 - 70px)}
+  .harr::before{content:""; width:9px; height:9px; border:solid #fff; border-width:2px 2px 0 0; transform:rotate(45deg); margin-right:3px}
+  .harr.prev::before{transform:rotate(-135deg); margin:0 0 0 3px}
+}
+.hero.hc .desc{text-align:center}
+.hs img{inset:-1px; width:calc(100% + 2px); height:calc(100% + 2px)}
+/* the proof line is plain text under the description, not a pill */
+.proof{display:block; border:0; padding:0; border-radius:0; margin-top:5px; font-size:12.5px}
+.proof span{margin-right:7px}
+
+/* review stars: five glyphs filled left to right by the rating */
+.proof .stars{font-style:normal; font-size:15px; letter-spacing:2px; line-height:1; vertical-align:-1px;
+  background:linear-gradient(90deg,var(--lime) var(--r),rgba(245,241,230,.22) var(--r));
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.proof b{font-size:12.5px; margin-left:5px}
+
+/* hero copy: the story line, the production credit, then the two actions */
+.hero.hc .desc{max-width:44ch; color:var(--ink); font-size:15px; line-height:1.4}
+.prod{margin:5px 0 0; font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.hnote{margin:8px 0 0; font-size:12.5px; color:var(--muted)}
+.noeps .hrow .sub{background:var(--lime); color:#14160D; border-color:var(--lime)}
+@media (min-width:860px){ .hero.hc .desc{font-size:17px} }
+.prod{font-size:10px; letter-spacing:.05em; white-space:nowrap}
+@media (min-width:860px){ .prod{font-size:11.5px; letter-spacing:.1em} }
+
+.noeps .hrow .see{display:none}
+.subsec{padding-bottom:26px}
+
+/* the story, kept short: label, synopsis, billing, then her posts */
+#story .lede{margin-top:8px}
+#story .billing{margin-top:10px; padding-top:0; border-top:0}
+#story .storypost{margin-top:16px}
+#story .follow{margin-top:16px; padding-top:14px}
+
+/* HERO, POSTER ONLY: one card, no dots or arrows; beside the words on a wide screen */
+.hero.solo .hdots, .hero.solo .harr{display:none}
+.hero.solo .hs{cursor:default}
+.hero.solo .hunder{padding-top:14px}
+.hero.solo{--sw:max(190px, min(74vw, calc((100svh - 290px) * .75), 330px))}
+.noeps .trlc.big{display:block; text-decoration:none}
+@media (min-width:860px){
+  .hero.hc.solo{display:grid; grid-template-columns:auto minmax(0,470px); justify-content:center; align-items:center; gap:60px;
+    --sw:max(260px, min(calc((100svh - 150px) * .75), 440px))}
+  .hero.solo .htrack{padding:0; overflow:visible}
+  .hero.solo .hunder{text-align:left; padding:0}
+  .hero.solo .desc{text-align:left; margin:0; font-size:21px; line-height:1.35; max-width:none}
+  .hero.solo .prod{margin-top:12px}
+  .hero.solo .proof{margin-top:10px; font-size:14px}
+  .hero.solo .hrow{justify-content:flex-start; margin-top:20px}
+  .hero.solo .hs h1{font-size:34px}
+}
+
+.winposts{margin-top:20px}
+.winposts .fdrail{margin-top:0}
+
+/* GALLERY: one row of photos, tap to open */
+.grail{display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x proximity; margin-top:14px; scrollbar-width:none; padding-bottom:2px}
+.grail::-webkit-scrollbar{display:none}
+.gt{flex:0 0 auto; height:250px; border-radius:13px; overflow:hidden; border:1px solid var(--line); scroll-snap-align:start; display:block}
+.gt img{height:100%; width:auto; display:block}
+@media (min-width:860px){ .gt{height:340px} }
+.lbox{position:fixed; inset:0; z-index:200; background:rgba(8,9,5,.94); display:grid; place-items:center; padding:16px; cursor:zoom-out}
+.lbox img{max-width:100%; max-height:calc(100svh - 32px); border-radius:12px}
+.lbox button{position:absolute; top:50%; width:44px; height:44px; margin-top:-22px; border-radius:50%; border:1px solid var(--line2);
+  background:rgba(20,22,13,.8); cursor:pointer; display:grid; place-items:center}
+.lbox .lb-p{left:10px} .lbox .lb-n{right:10px}
+.lbox button::before{content:""; width:9px; height:9px; border:solid #fff; border-width:2px 2px 0 0; transform:rotate(45deg); margin-right:3px; pointer-events:none}
+.lbox .lb-p::before{transform:rotate(-135deg); margin:0 0 0 3px}
+/* Love Racket: the court photo carries the section, so the wash is lighter */
+.lr .bgim img{object-position:50% 55%}
+.lr .bgim::after{background:linear-gradient(180deg,rgba(12,13,8,.82),rgba(12,13,8,.6) 45%,rgba(12,13,8,.92))}
+.lr .bgim::after{background:linear-gradient(180deg,rgba(12,13,8,.84),rgba(12,13,8,.72) 45%,rgba(12,13,8,.93))}
