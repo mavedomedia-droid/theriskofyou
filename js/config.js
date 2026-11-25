@@ -20,6 +20,22 @@ window.TROY_CONFIG = {
     snapchat:  ''    // https://www.snapchat.com/add/...
   },
 
+  /* ---- press ----
+     A pull quote goes on the page only when it was really published. Fill in
+     `text` and `source` and the block appears; leave `text` empty and the
+     whole thing stays hidden, which is how it ships.
+     `url` should point at the actual piece, so anyone reading the quote can
+     click through and check it. A quote with no link is the kind of thing
+     that gets a brand called out, so do not skip it.
+     `rating` is optional and only shows next to a source. Leave it empty
+     unless that same publication actually scored it. */
+  PRESS: {
+    text:   'a social media thriller',
+    source: 'What Kept Me Up',
+    url:    '',          // paste the link to the piece so it is checkable
+    rating: ''           // '4/5', or leave empty for no rating
+  },
+
   /* ---- links ---- */
   LR_URL: 'https://loveracket.co/?utm_source=troy&utm_medium=site&utm_campaign=cross',
   /* The game lives on its own page over there, so this drops the visitor

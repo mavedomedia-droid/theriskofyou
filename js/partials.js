@@ -63,23 +63,76 @@
   window.TROY_ICONS = ICONS;
   window.TROY_LABEL = LABEL;
 
-  /* Builds the four watch buttons from config. A platform with no URL is
+  /* Where to watch says Reels and Shorts, because that is what the thing is
+     called on that platform. Follow says Instagram and YouTube, because that
+     is what you are following. Same links, same config, different words. */
+  var BRAND = { tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube', snapchat: 'Snapchat' };
+
+  /* Builds the four buttons from WATCH in config. A platform with no URL is
      simply not rendered, so the row is never a dead link. */
-  function watchRow(cls) {
+  function watchRow(cls, brand) {
     var keys = ['tiktok', 'instagram', 'youtube', 'snapchat'], out = '';
     keys.forEach(function (k) {
       var u = (C.WATCH || {})[k];
       if (!u) return;
       out += '<a href="' + u + '" target="_blank" rel="noopener" data-watch="' + k + '">' +
-             ICONS[k] + LABEL[k] + '</a>';
+             ICONS[k] + (brand ? BRAND[k] : LABEL[k]) + '</a>';
     });
+    /* No links set means nothing is drawn. This used to print a note telling
+       whoever was building it to fill in config, which was fine while the
+       site was private and is a leak now that it is public. The reminder
+       lives in the config comments and the console instead. */
     if (!out) {
-      out = '<span style="font-size:12.5px;color:#6E6F62">' +
-            'Add the four channel links in js/config.js and these buttons appear</span>';
+      if (window.console && console.info) {
+        console.info('TRoY: no channel links in WATCH, so the follow buttons are hidden.');
+      }
+      return '';
     }
     return '<div class="' + (cls || 'watch') + '">' + out + '</div>';
   }
   window.TROY_WATCH = watchRow;
+
+  /* Config is written by hand, so anything from it that lands in innerHTML
+     gets escaped. partials.js had no escaper of its own until now. */
+  function esc(v) {
+    return String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  /* The press pull quote. Shows only when there is a real quote AND a real
+     source in config, because a quote with no attribution is worthless and
+     an attribution with no link is worse. The link is optional in code but
+     the config comment asks for it; without one the source is plain text. */
+  var pz = document.getElementById('press');
+  if (pz) {
+    var P = C.PRESS || {};
+    var qt = String(P.text || '').trim(), sc = String(P.source || '').trim();
+    if (qt && sc) {
+      var who = P.url
+        ? '<a href="' + esc(P.url) + '" target="_blank" rel="noopener">' + esc(sc) + '</a>'
+        : esc(sc);
+      pz.innerHTML =
+        '<blockquote>&ldquo;' + esc(qt) + '&rdquo;</blockquote>' +
+        '<figcaption>' + who +
+          (String(P.rating || '').trim()
+            ? '<span class="rt">' + esc(String(P.rating).trim()) + '</span>' : '') +
+        '</figcaption>';
+      pz.classList.remove('hidden');
+    }
+  }
+
+  /* The Follow the series row in the story section. The whole block goes,
+     label and divider included, rather than leaving a heading over nothing. */
+  var fol = document.getElementById('follow');
+  if (fol) {
+    var row = watchRow('watch', true);
+    if (row) fol.innerHTML = row;
+    else {
+      var blk = fol.closest ? fol.closest('.follow') : null;
+      if (blk) blk.classList.add('hidden'); else fol.classList.add('hidden');
+    }
+  }
 
   /* ----------------------------------------------------------------- nav */
   var nav = document.getElementById('nav');
@@ -188,48 +241,151 @@
   }
   window.TROY_SLOTS = slots;
 
+  /* The dashed box with a file path in it tells the builder which image is
+     missing. On the live site it told visitors the same thing. It now shows
+     only when the page is opened from a file, on localhost, or with ?slots
+     in the address; everywhere else an empty slot is just a quiet tile. */
+  try {
+    if (location.protocol === 'file:' || /^(localhost|127\.)/.test(location.hostname) ||
+        /[?&]slots\b/.test(location.search)) {
+      document.documentElement.classList.add('dev');
+    }
+  } catch (e) {}
+
+  /* Five blank squares is not a cast section. Until at least one supporting
+     portrait exists, the grid collapses to names and roles. */
+  function castGrid() {
+    var g = document.querySelector('.supp');
+    if (!g) return;
+    var any = g.querySelector('.ph:not(.empty)');
+    g.classList.toggle('noimg', !any);
+  }
+  window.addEventListener('load', function () { setTimeout(castGrid, 60); });
+
   /* ----------------------------------------------------------- newsletter */
-  var form = document.getElementById('news');
-  if (form) {
-    var msg = document.getElementById('fmsg');
+  /* One signup handler, used by the form in the page and by the slide up
+     bar. They post the same thing and fail the same way, so they should not
+     be two copies that drift. `src` is what lands in the Source column. */
+  function wireSignup(form, msg, src) {
+    if (!form) return;
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (form.company && form.company.value) return;            // honeypot
       var email = (form.email.value || '').trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        msg.className = 'fmsg err'; msg.textContent = 'That email does not look right.'; return;
-      }
-      var btn = form.querySelector('button');
-      btn.disabled = true; msg.className = 'fmsg'; msg.textContent = 'One moment.';
+      var say = function (t, bad) {
+        if (!msg) return;
+        msg.className = bad ? 'fmsg err' : 'fmsg';
+        msg.textContent = t;
+      };
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { say('That email does not look right.', true); return; }
+
+      var btn = form.querySelector('button[type="submit"], button');
+      if (btn) btn.disabled = true;
+      say('One moment.');
 
       if (!C.API_URL) {
-        btn.disabled = false; msg.className = 'fmsg err';
-        msg.textContent = 'Not connected yet. Add API_URL in js/config.js.';
+        if (btn) btn.disabled = false;
+        say('Not connected yet. Add API_URL in js/config.js.', true);
         return;
       }
       api('signup', {
         email: email,
         cross: form.cross && form.cross.checked ? 1 : 0,
-        src: 'troy-site'
+        src: src
       }).then(function (r) {
-        btn.disabled = false;
+        if (btn) btn.disabled = false;
         /* Apps Script answers 200 even for an unknown action, and fetch
            resolves on 200, so the body has to be read before confirming.
            Without this the form congratulates people it never stored. */
         if (r && r.ok) {
-          form.reset(); msg.textContent = '';
-          track('Signup', '/signed-up/', { source: 'troy-site' });
+          form.reset(); say('');
+          track('Signup', '/signed-up/', { source: src });
+          try { localStorage.setItem('troy_signed', '1'); } catch (err) {}
+          hidePop();
           var l = document.getElementById('layer');
           if (l) l.classList.add('on');
         } else {
-          msg.className = 'fmsg err';
-          msg.textContent = (r && r.error) || 'That did not save. Try again in a moment.';
+          say((r && r.error) || 'That did not save. Try again in a moment.', true);
         }
       }).catch(function () {
-        btn.disabled = false; msg.className = 'fmsg err';
-        msg.textContent = 'Network trouble. Try again in a moment.';
+        if (btn) btn.disabled = false;
+        say('Network trouble. Try again in a moment.', true);
       });
     });
+  }
+
+  wireSignup(document.getElementById('news'), document.getElementById('fmsg'), 'troy-site');
+
+  /* ------------------------------------------------- the slide up bar
+     A bar, not a modal over the middle of the screen. It never covers what
+     someone is reading, and it only appears once somebody has shown they
+     are actually reading: 45% down the page, or 25 seconds in.
+
+     It stays away if they have already signed up, already dismissed it, or
+     are looking at the newsletter section itself, because competing with
+     your own form is the one thing worse than not asking. Every storage
+     call is wrapped, since it throws in a private window. */
+  var pop = null, popShown = false;
+
+  function flag(k) { try { return localStorage.getItem(k) === '1'; } catch (e) { return false; } }
+  function setFlag(k) { try { localStorage.setItem(k, '1'); } catch (e) {} }
+
+  function hidePop() { if (pop) pop.classList.remove('on'); }
+
+  function buildPop() {
+    if (!C.API_URL) return null;                     // nothing to post to
+    if (flag('troy_signed') || flag('troy_pop_off')) return null;
+
+    var el = document.createElement('div');
+    el.className = 'pop';
+    el.id = 'pop';
+    el.innerHTML =
+      '<button class="x" type="button" aria-label="Close">&times;</button>' +
+      '<div class="tx"><b>Don\'t miss one</b><span>One email the moment a new episode drops.</span></div>' +
+      '<form id="popForm" novalidate>' +
+        '<input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">' +
+        '<label for="popEmail" class="sr">Email</label>' +
+        '<input type="email" id="popEmail" name="email" placeholder="Your email" autocomplete="email" inputmode="email">' +
+        '<button class="btn lime" type="submit">Keep me posted</button>' +
+      '</form>' +
+      '<p class="fmsg" id="popMsg"></p>';
+    document.body.appendChild(el);
+
+    el.querySelector('.x').addEventListener('click', function () {
+      hidePop(); setFlag('troy_pop_off');
+      track('PopDismiss', '/popup/dismissed');
+    });
+    wireSignup(el.querySelector('#popForm'), el.querySelector('#popMsg'), 'troy-popup');
+    return el;
+  }
+
+  function newsletterOnScreen() {
+    var n = document.querySelector('.news');
+    if (!n) return false;
+    var r = n.getBoundingClientRect();
+    return r.top < window.innerHeight && r.bottom > 0;
+  }
+
+  function showPop() {
+    if (popShown || !pop || newsletterOnScreen()) return;
+    popShown = true;
+    pop.classList.add('on');
+    track('PopShow', '/popup/shown');
+  }
+
+  function startPop() {
+    pop = buildPop();
+    if (!pop) return;
+    var depth = function () {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      if (h > 0 && (window.scrollY / h) > 0.45) { showPop(); window.removeEventListener('scroll', depth); }
+    };
+    window.addEventListener('scroll', depth, { passive: true });
+    setTimeout(showPop, 25000);
+    /* If they reach the real form, get out of its way for good. */
+    window.addEventListener('scroll', function () {
+      if (popShown && newsletterOnScreen()) hidePop();
+    }, { passive: true });
   }
 
   var layer = document.getElementById('layer');
@@ -240,6 +396,44 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { wire(); slots(); });
-  } else { wire(); slots(); }
+    document.addEventListener('DOMContentLoaded', function () { wire(); slots(); startPop(); });
+  } else { wire(); slots(); startPop(); }
+
+  /* ------------------------------------------------------------ gallery
+     Tapping a photo opens it full screen. Tap anywhere, or press Escape,
+     to close. Left and right move through the set. */
+  (function () {
+    var rail = document.getElementById('grail');
+    if (!rail) return;
+    var tiles = [].slice.call(rail.querySelectorAll('.gt')), at = 0, box = null;
+    function show(i) {
+      at = (i + tiles.length) % tiles.length;
+      box.querySelector('img').src = tiles[at].getAttribute('href');
+    }
+    function close() { if (box) { box.remove(); box = null; document.documentElement.style.overflow = ''; } }
+    function open(i) {
+      box = document.createElement('div');
+      box.className = 'lbox';
+      box.innerHTML = '<button class="lb-p" type="button" aria-label="Previous"></button><img alt="">' +
+                      '<button class="lb-n" type="button" aria-label="Next"></button>';
+      document.body.appendChild(box);
+      document.documentElement.style.overflow = 'hidden';
+      box.addEventListener('click', function (e) {
+        if (e.target.className === 'lb-p') return show(at - 1);
+        if (e.target.className === 'lb-n') return show(at + 1);
+        close();
+      });
+      show(i);
+      track('GalleryOpen', '', { photo: i + 1 });
+    }
+    tiles.forEach(function (t, i) {
+      t.addEventListener('click', function (e) { e.preventDefault(); open(i); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!box) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') show(at - 1);
+      if (e.key === 'ArrowRight') show(at + 1);
+    });
+  })();
 })();

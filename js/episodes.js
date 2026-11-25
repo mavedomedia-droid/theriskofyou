@@ -120,116 +120,178 @@
   }
 
 
-  /* ------------------------------------------------- the trailer week
-     Between the trailer dropping and the first episode there is nothing
-     to put in an episode rail, and that is exactly the week the PR boxes
-     and the trailer itself push people here. So while no episode is live
-     and the Settings tab holds a trailer link, the hero leads with the
-     trailer and a countdown instead. The moment the first episode link
-     lands in the sheet this disappears on its own. */
-  function ytId(u) {
-    var m = String(u || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
-    return m ? m[1] : '';
+  /* ------------------------------------------------- before episode one */
+  var TRAILER_IMG = 'assets/coming-soon.jpg';
+  function setEmpty(on) { document.documentElement.classList.toggle('noeps', !!on); }
+  function trailerCard() {
+    /* "Coming soon" until Settings holds a Trailer link, then it opens it. */
+    var t = String((state.cfg || {}).trailerLink || '').trim();
+    var tag = t ? 'a' : 'div';
+    return '<' + tag + ' class="trlc big"' +
+           (t ? ' href="' + esc(t) + '" target="_blank" rel="noopener"' : '') + '>' +
+           '<img src="' + B + TRAILER_IMG + '" alt="" loading="lazy">' +
+           '<div class="tx"><div class="ep">Trailer</div><h2>' +
+           (t ? 'Watch the trailer' : 'Trailer coming soon') + '</h2></div></' + tag + '>';
   }
 
-  function countdown(host, iso) {
-    if (!iso) return;
-    var when = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso + 'T00:00:00+01:00' : iso).getTime();
-    if (!when || isNaN(when)) return;
-    var tick = function () {
-      var left = when - Date.now();
-      if (left <= 0) { host.textContent = 'Out now'; return; }
-      var d = Math.floor(left / 864e5), h = Math.floor(left % 864e5 / 36e5), m = Math.floor(left % 36e5 / 6e4);
-      host.textContent = d > 0 ? (d + (d === 1 ? ' day' : ' days') + ', ' + h + 'h to go')
-                               : (h + 'h ' + m + 'm to go');
-    };
-    tick();
-    setInterval(tick, 60000);
+  /* ------------------------------------------------------------ the hero
+     A row of posters you swipe through. The series poster is first, then the
+     episodes from the Sheet with the newest one sitting in the middle when
+     the page opens. With no episodes yet the middle card is the trailer:
+     "coming soon" by default, or the real one once Settings holds a
+     Trailer link. */
+  var heroSig = '', heroSlides = [], heroAt = 1;
+
+  function heroList() {
+    /* The hero is the series poster on its own. Episodes live in one place,
+       the "Every episode" row straight under it. */
+    return [{ kind: 'series', img: B + 'assets/poster.jpg', link: '' }];
   }
 
-  function paintTrailer() {
-    var host = document.getElementById('liveEp');
-    if (!host) return false;
-    var cfg = state.cfg || {};
-    var url = (cfg.trailerLink || '').trim();
-    if (!url) return false;
-    if (state.eps.filter(function (e) { return e.live; }).length) return false;   // episodes win
-
-    var id = ytId(url);
-    var frame = id
-      ? '<div class="tfr"><iframe src="https://www.youtube-nocookie.com/embed/' + esc(id) +
-        '?rel=0" title="The Risk of You trailer" loading="lazy" allowfullscreen ' +
-        'allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe></div>'
-      : '<a class="tfr link" href="' + esc(url) + '" target="_blank" rel="noopener" data-trailer="1">' +
-        '<span class="pl" aria-hidden="true"></span><span class="lb">Watch the trailer</span></a>';
-
-    host.innerHTML =
-      '<div class="trailer">' + frame +
-        '<div class="tm">' +
-          (cfg.announcement ? '<p class="an">' + esc(cfg.announcement) + '</p>' : '') +
-          (cfg.launchDate ? '<p class="cd" id="cdn"></p>' : '') +
-        '</div>' +
-      '</div>';
-
-    var cd = document.getElementById('cdn');
-    if (cd) countdown(cd, cfg.launchDate);
-
-    var lk = host.querySelector('[data-trailer]');
-    if (lk) lk.addEventListener('click', function () { track('TrailerPlay', '/trailer/'); });
-    if (id) track('TrailerShown', '');
-
-    var lbl = document.querySelector('.live .lbl span');
-    if (lbl) lbl.textContent = 'The trailer';
-    var start = document.querySelector('.hero .start');
-    if (start) start.classList.add('hidden');
-    return true;
+  function slideHtml(sl, i) {
+    var tag = sl.link ? 'a' : 'div';
+    var attrs = sl.link ? ' href="' + esc(sl.link) + '" target="_blank" rel="noopener"' : '';
+    if (sl.kind === 'ep') attrs += ' data-ep="' + sl.ep.n + '"';
+    if (sl.kind === 'trailer' && sl.link) attrs += ' data-trailer="1"';
+    var cap = sl.kind === 'series'
+      ? '<h1><em>Win</em> bets she can make <em>Kunle</em> fall.</h1>'
+      : '<div class="kick">' + esc(sl.kick) + '</div><h2>' + esc(sl.title) + '</h2>';
+    return '<' + tag + ' class="hs ' + sl.kind + '" data-i="' + i + '"' + attrs + '>' +
+      (sl.img ? '<img src="' + esc(sl.img) + '" alt=""' + (i > 2 ? ' loading="lazy"' : '') + '>' : '') +
+      '<div class="c">' + cap + '</div></' + tag + '>';
   }
 
-  /* ------------------------------------------------------------ the hero */
-  function paintLive() {
-    var host = document.getElementById('liveEp');
-    if (!host) return;
-    if (paintTrailer()) return;
-    var live = state.eps.filter(function (e) { return e.live; });
-    if (!live.length) {
-      host.innerHTML =
-        '<div class="lvcard"><div class="cv" data-slot="first episode cover"></div>' +
-        '<div><div class="ep">Coming soon</div><h2>The first episodes are on their way.</h2>' +
-        '<p>Put your email in below and we will tell you the moment they land.</p>' +
-        (window.TROY_WATCH ? window.TROY_WATCH() : '') + '</div></div>';
-      bindCards(host);
-      return;
-    }
-    var ep = live[live.length - 1];
-    var num = ('0' + ep.n).slice(-2);
-    /* The hero has room for words, so these carry a label as well as an icon.
-       Same source as the card icons: the episode's own row. */
-    var eplinks = ep.links || {}, links = '';
-    PLATS.forEach(function (k) {
-      var u = eplinks[k];
-      if (!u) return;
-      links += '<a href="' + esc(u) + '" target="_blank" rel="noopener"' +
-               ' data-watch="' + k + '" data-ep="' + ep.n + '">' +
-               (ICONS[k] || '') + (k === 'instagram' ? 'Watch episode ' + num : (LABEL[k] || k)) +
-               '</a>';
+  function heroSet(i, jump) {
+    var track = document.getElementById('heroTrack');
+    if (!track) return;
+    var els = track.querySelectorAll('.hs');
+    if (!els.length) return;
+    i = Math.max(0, Math.min(els.length - 1, i));
+    var el = els[i];
+    var left = el.offsetLeft - (track.clientWidth - el.offsetWidth) / 2;
+    if (jump) track.scrollLeft = left;
+    else if (track.scrollTo) track.scrollTo({ left: left, behavior: 'smooth' });
+    else track.scrollLeft = left;
+  }
+
+  function heroMark() {
+    var track = document.getElementById('heroTrack');
+    if (!track) return;
+    var els = track.querySelectorAll('.hs'), mid = track.scrollLeft + track.clientWidth / 2;
+    var best = 0, gap = 1e9;
+    [].forEach.call(els, function (el, i) {
+      var d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
+      if (d < gap) { gap = d; best = i; }
     });
-    host.innerHTML =
-      '<div class="lvcard">' +
-        '<div class="cv">' +
-          (ep.cover ? '<img src="' + esc(ep.cover) + '" alt="Episode ' + num + '">'
-                    : '<span class="ld">EP ' + num + '</span>') +
-        '</div>' +
-        /* The "Out now" label with the pulsing dot sits directly above this
-           card in the page, so saying it again here, and a third time in the
-           empty cover, read as a stutter. The card states the number only. */
-        '<div><div class="ep">Episode ' + num + '</div>' +
-          '<h2>' + esc(ep.title || 'Episode ' + num + ' is live') + '</h2>' +
-          '<p>' + esc(ep.blurb || (ep.pending ? 'Details coming. Tap to watch it now.' : '')) + '</p>' +
-          '<div class="watch">' + links + '</div>' +
-        '</div>' +
-      '</div>';
-    bindCards(host);   /* binds the watch links too: they carry data-ep */
+    heroAt = best;
+    [].forEach.call(els, function (el, i) { el.classList.toggle('on', i === best); });
+    var dots = document.getElementById('heroDots');
+    if (dots) [].forEach.call(dots.children, function (d, i) { d.classList.toggle('on', i === best); });
+
+    /* Play follows the card in the middle. On the series poster it plays the
+       newest episode, so the button is never a dead end. */
+    var play = document.getElementById('heroPlay');
+    if (play) {
+      var sl = heroSlides[best] || {};
+      var target = sl.link ? sl : null;
+      if (!target) for (var k = 0; k < heroSlides.length; k++) if (heroSlides[k].link) { target = heroSlides[k]; break; }
+      play.classList.toggle('hidden', !target);
+      if (target) {
+        play.href = target.link;
+        if (target.ep) { play.setAttribute('data-ep', target.ep.n); play.setAttribute('data-watch', 'instagram'); }
+        else { play.removeAttribute('data-ep'); play.removeAttribute('data-watch'); }
+      }
+    }
   }
+
+  function paintProof() {
+    var el = document.getElementById('heroProof');
+    var P = C.PRESS || {};
+    if (!el) return;
+    if (!P.text || !P.source) { el.classList.add('hidden'); return; }
+    el.classList.remove('hidden');
+    if (P.url) { el.href = P.url; el.target = '_blank'; el.rel = 'noopener'; }
+    /* Stars only draw when PRESS.rating holds a number out of 5, e.g. '4.5'.
+       Left empty, the line is just the quote and the outlet. */
+    var r = parseFloat(P.rating), stars = '';
+    if (r > 0 && r <= 5) {
+      stars = '<i class="stars" style="--r:' + (r / 5 * 100).toFixed(1) + '%" role="img" aria-label="' +
+              r + ' out of 5 stars">\u2605\u2605\u2605\u2605\u2605</i><b>' + r + '</b><br>';
+    }
+    el.innerHTML = stars +
+      '<span>&ldquo;' + esc(P.text) + '&rdquo;</span><em>' + esc(P.source) + '</em>';
+  }
+
+  function paintLive() {
+    var track = document.getElementById('heroTrack');
+    if (!track) return;
+    var live = state.eps.filter(function (e) { return e.live; });
+    setEmpty(!live.length);
+    paintProof();
+
+    var list = heroList();
+    var sig = JSON.stringify(list.map(function (s) { return [s.kind, s.img, s.link, s.title]; }));
+    if (sig === heroSig) return;            /* a poll with nothing new must not move the row */
+    heroSig = sig; heroSlides = list;
+
+    track.innerHTML = list.map(slideHtml).join('');
+    var hero = track.closest ? track.closest('.hero') : null;
+    if (hero) hero.classList.toggle('solo', list.length < 2);
+    var dots = document.getElementById('heroDots');
+    if (dots) dots.innerHTML = list.map(function (s, i) {
+      return '<button type="button" aria-label="Go to card ' + (i + 1) + '" data-i="' + i + '"></button>';
+    }).join('');
+
+    /* A card off to the side slides into the middle on the first tap and
+       only opens its link once it is the one in focus. */
+    [].forEach.call(track.querySelectorAll('.hs'), function (el) {
+      el.addEventListener('click', function (e) {
+        var i = Number(el.getAttribute('data-i'));
+        if (i !== heroAt) { e.preventDefault(); e.stopImmediatePropagation(); heroSet(i); }
+        else if (el.getAttribute('data-trailer')) track_('TrailerPlay', '/trailer/');
+      });
+    });
+    if (dots) [].forEach.call(dots.children, function (d) {
+      d.addEventListener('click', function () { heroSet(Number(d.getAttribute('data-i'))); });
+    });
+    bindCards(track);
+    requestAnimationFrame(function () { heroSet(list.length > 1 ? 1 : 0, true); heroMark(); });
+  }
+  function track_(a, b) { try { track(a, b); } catch (e) {} }
+
+  (function () {
+    var track = document.getElementById('heroTrack');
+    if (!track) return;
+    var t = 0;
+    track.addEventListener('scroll', function () {
+      if (t) return;
+      t = requestAnimationFrame(function () { t = 0; heroMark(); });
+    }, { passive: true });
+    window.addEventListener('resize', function () { heroSet(heroAt, true); heroMark(); });
+    [].forEach.call(document.querySelectorAll('.harr'), function (b) {
+      b.addEventListener('click', function () { heroSet(heroAt + Number(b.getAttribute('data-dir'))); });
+    });
+    var sub = document.getElementById('heroSub');
+    if (sub) sub.addEventListener('click', function (e) {
+      var f = document.getElementById('news');
+      var sec = document.getElementById('subscribe') || f;
+      if (!f) return;
+      e.preventDefault();
+      /* Lands with the form at the top of the screen, so Love Racket, which
+         sits directly under it, is in view at the same time. */
+      var y = sec.getBoundingClientRect().top + window.pageYOffset - 62;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      var inp = f.querySelector('input[type="email"]');
+      if (inp) setTimeout(function () { try { inp.focus({ preventScroll: true }); } catch (x) {} }, 500);
+      track_('SubscribeClick', '');
+    });
+    var play = document.getElementById('heroPlay');
+    if (play) play.addEventListener('click', function () {
+      var n = Number(play.getAttribute('data-ep'));
+      if (n) { markSeen(n); track_('WatchClick', '/watch/instagram', { platform: 'instagram', episode: n }); }
+      else track_('TrailerPlay', '/trailer/');
+    });
+  })();
 
   /* ------------------------------------------------- latest posts
      A window on the accounts, not an archive. The Latest Posts tab is
@@ -252,28 +314,36 @@
     return new Date(then).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
   }
 
+  function feedCard(p, source) {
+    var when = ago(p.at);
+    return '<a class="fd" href="' + esc(p.link) + '" target="_blank" rel="noopener"' +
+           ' data-feed="' + esc(source) + '">' +
+        '<div class="im" data-slot="post">' +
+          (p.image ? '<img src="' + esc(p.image) + '" alt="" loading="lazy">' : '') +
+        '</div>' +
+        (p.caption ? '<p>' + esc(p.caption) + '</p>' : '') +
+        (when ? '<span class="dt">' + esc(when) + '</span>' : '') +
+      '</a>';
+  }
+
+  function postsFrom(source) {
+    return (state.feed || []).filter(function (p) {
+      return String(p.source || '').toLowerCase() === String(source).toLowerCase();
+    });
+  }
+
   function paintFeed(hostId, source) {
     var host = document.getElementById(hostId);
     if (!host) return;
     var sec = host.closest ? host.closest('.fdsec') : null;
-    var posts = (state.feed || []).filter(function (p) {
-      return String(p.source || '').toLowerCase() === String(source).toLowerCase();
-    });
+    var posts = postsFrom(source);
     if (!posts.length) {
       if (sec) sec.classList.add('hidden');
       return;
     }
     if (sec) sec.classList.remove('hidden');
     host.innerHTML = posts.slice(0, 9).map(function (p) {
-      var when = ago(p.at);
-      return '<a class="fd" href="' + esc(p.link) + '" target="_blank" rel="noopener"' +
-             ' data-feed="' + esc(source) + '">' +
-          '<div class="im" data-slot="post">' +
-            (p.image ? '<img src="' + esc(p.image) + '" alt="" loading="lazy">' : '') +
-          '</div>' +
-          (p.caption ? '<p>' + esc(p.caption) + '</p>' : '') +
-          (when ? '<span class="dt">' + esc(when) + '</span>' : '') +
-        '</a>';
+      return feedCard(p, source);
     }).join('');
     if (window.TROY_SLOTS) window.TROY_SLOTS(host);
     [].forEach.call(host.querySelectorAll('[data-feed]'), function (a) {
@@ -283,7 +353,25 @@
     });
   }
 
+  /* Three of Win's latest, sitting in the story section where the
+     production stills used to be. Same card as the rails, same data. */
+  function paintStoryPosts() {
+    var host = document.getElementById('storyPost');
+    if (!host) return;
+    var posts = postsFrom('Win').slice(0, 3);
+    if (!posts.length) { host.classList.add('hidden'); return; }
+    host.classList.remove('hidden');
+    host.innerHTML = posts.map(function (p) { return feedCard(p, 'Win'); }).join('');
+    if (window.TROY_SLOTS) window.TROY_SLOTS(host);
+    [].forEach.call(host.querySelectorAll('[data-feed]'), function (a) {
+      a.addEventListener('click', function () {
+        track('FeedOpen', '/feed/win', { feed: 'Win' });
+      });
+    });
+  }
+
   function paintFeeds() {
+    paintStoryPosts();
     paintFeed('feedWin', 'Win');
     paintFeed('feedSeries', 'Series');
   }
@@ -296,7 +384,8 @@
     if (state.order === 'latest') list.reverse();
     var isGrid = rail.classList.contains('grid');
     var slice = isGrid ? list.slice(0, state.shown) : list.slice(0, 24);
-    rail.innerHTML = slice.map(card).join('');
+    setEmpty(!list.length);
+    rail.innerHTML = list.length ? slice.map(card).join('') : trailerCard();
     bindCards(rail);
 
     var more = document.getElementById('more');
@@ -309,7 +398,9 @@
     var cnt = document.getElementById('epCount');
     if (cnt) {
       var liveN = state.eps.filter(function (e) { return e.live; }).length;
-      cnt.textContent = liveN ? liveN + (liveN === 1 ? ' episode out' : ' episodes out') : '';
+      /* No count on the page, by request: neither a total nor a running
+         tally. The element stays so the archive layout does not shift. */
+      cnt.textContent = '';
     }
   }
 
@@ -358,8 +449,10 @@
       paintLive(); paintRail(); paintViews(); paintFeeds();
     }).catch(function () {
       if (state.loaded) return;                       // keep what is on screen
-      state.eps = (C.EPISODES_FALLBACK || []).map(fromFallback);
-      state.feed = C.FEED_FALLBACK || [];
+      /* The sample rows are for previewing with no backend. With a real
+         API_URL a failed fetch shows the coming soon card instead, never
+         made-up episodes. */
+      state.eps = []; state.feed = [];
       paintLive(); paintRail(); paintViews(); paintFeeds();
     });
   }
