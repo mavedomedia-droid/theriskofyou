@@ -30,7 +30,7 @@ window.TROY_CONFIG = {
      `rating` is optional and only shows next to a source. Leave it empty
      unless that same publication actually scored it. */
   PRESS: {
-    text:   'a social media thriller',
+    text:   '',                 // empty until the quote is really published
     source: 'What Kept Me Up',
     url:    '',          // paste the link to the piece so it is checkable
     rating: ''           // '4/5', or leave empty for no rating
